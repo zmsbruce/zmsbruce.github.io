@@ -1,12 +1,13 @@
 ---
-title: Arch Linux 安装与美化-安装篇
+title: Arch Linux 安装与美化
 data: 2024-09-27 10:35:02 +0800
 categories: [Linux]
 tags: [Arch Linux, Linux]
+description: Windows 和 Arch Linux 双系统下 Arch Linux 的安装以及美化的详细步骤
 author: zmsbruce
 ---
 
-![](/assets/img/2024-09-27-Arch%20Linux安装与美化-安装篇/cover.png)
+![](/assets/img/2024-09-27-Arch%20Linux安装与美化/cover.png)
 
 ## 写在开头
 
@@ -43,7 +44,7 @@ certutil -hashfile .\archlinux-20xx.xx.xx-x86_64.iso SHA256
 
 进入 BIOS，在“设置”或者“安全”选项卡中找到“安全启动”项，并将其设置为关闭，找到“允许 USB 启动”项，将其设置为开启。
 
-## 安装
+## 安装系统
 
 ### 启动安装环境
 
@@ -168,7 +169,7 @@ cfdisk /dev/nvme0n1
 
 cfdisk 是图形化的分区指令，比 fdisk 简单很多。其下面有一行操作文件，通过左右方向键可以移动到不同选项。上下方向键可以选择不同分区进行操作。
 - \[New\] 选项为新建分区，将方向键选择到未分配的分区，选择 \[New\] 选项，回车后会提示新分区大小，输入大小即可创建一个新的分区
-- \[Quit\] 可以退出 cfdisk ，并且不保存修改，也就是之前做的操作一律作废
+- \[Quit\] 可以退出 cfdisk ，并且不保存修改，也就是之前所有没有写入的操作一律作废
 - \[Help\] 选项可以查看 cfdisk 帮助
 - \[Write\] 选项才是真的执行写入操作，使用后会对操作的磁盘执行写入，以前做的修改会生效
 - \[Type\] 选项可以改变分区类型，boot 分区选择 EFI 分区类型，根分区选择 ext4 类型
@@ -377,7 +378,7 @@ Linux 的主流桌面环境为 KDE Plasma（基于 Qt） 和 GNOME（基于 GTK�
 GNOME：
 
 ```sh
-pacman -S gnome gnome-tweaks noto-fonts-cjk
+pacman -S gnome gnome-tweaks gdm
 systemctl enable gdm.service
 ```
 
@@ -429,3 +430,258 @@ reboot
 ```
 
 至此，Arch Linux 系统就安装完毕了。下一篇带来的是有关 Arch Linux 的美化，以让用户达到更良好的使用体验。
+
+## AUR 介绍和使用
+
+Arch Linux 的一大魅力所在就是其 AUR 仓库。Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 community 仓库。
+
+AUR 不以构建好的二进制软件包为主，有大量软件包需要您在本地编译才能安装使用。如果想要安装和使用 AUR ，首先安装 base-devel 库以便进行编译
+
+```sh
+sudo pacman -S base-devel
+```
+
+一般地，使用 AUR 进行应用安装的方法如下（以 [visual-studio-code-bin](https://aur.archlinux.org/packages/visual-studio-code-bin) 为例）：
+
+1. 在 AUR 网站 [https://aur.archlinux.org](https://aur.archlinux.org) 上进行相应软件包的搜索；
+2. 选择对应的软件，进入详情页，复制 Git Clone URL 下的网址 [https://aur.archlinux.org/visual-studio-code-bin.git](https://aur.archlinux.org/visual-studio-code-bin.git)；
+3. 在本地运行指令：`git clone https://aur.archlinux.org/visual-studio-code-bin.git`，将包下载到本地；
+4. 打开 visual-studio-code-bin 文件夹，其下面应该存在一个 PKGBUILD 文件，在该文件夹下运行 `makepkg -si` 即可。有关 Makepkg 的使用，请参考 [Makepkg-ArchWiki](https://wiki.archlinux.org/title/Makepkg)；
+
+为了获得更好的体验，推荐安装 AUR 助手，常见的 AUR 助手包括 paru 和 yay 。paru 和 yay 都是 pacman 的封装，pacman 支持的选项和参数它们都支持。它们还有额外的功能，包括管理 AUR 仓库中的软件包。以 paru 为例，在命令行中输入
+
+```sh
+sudo pacman -S paru
+```
+
+安装 paru，之后如果想安装 visual-studio-code-bin 的 AUR 包，只需要输入
+
+```sh
+paru -S visual-studio-code-bin
+```
+
+根据提示，即可完成安装。
+
+## 国内环境使用优化
+
+### 启用 archlinuxcn 仓库
+
+archlinuxcn 仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种，提供了大量适合国人使用的软件包。在 `/etc/pacman.conf` 中，添加
+
+```
+[archlinuxcn]
+Server = https://repo.archlinuxcn.org/$arch
+```
+
+之后，同步软件数据库，并安装 archlinuxcn-keyring
+
+```sh
+sudo pacman -Syyu
+sudo pacman -S archlinuxcn-keyring
+```
+
+### 安装中文输入法
+
+安装 `ibus-rime` 输入法和 `noto-fonts-cjk` 中文字体：
+
+```sh
+paru -S ibus-rime noto-fonts-cjk
+```
+
+重启系统，之后在键盘-输入源中去掉原来的输入源，添加`中文（Rime）`这一选项。在 `~/.config/ibus/rime` 目录下，新建 default.custom.yaml ，输入
+
+```yaml
+patch:
+  schema_list:
+    - schema: luna_pinyin_simp
+```
+
+之后，在通知栏的 Rime 图标处右键，点击`部署`，即可使用。如果您使用 Visual Studio Code，那么其呼出终端的按键组合 Ctrl+` 会被 Rime 占用。若要避免这一现象，在 default.custom.yaml 中添加
+
+```yaml
+switcher:
+  hotkeys:
+    - F4
+```
+
+之后重新部署。此外，如果您偏好英文作为首选输入方式（这在控制台操作时显得尤其常见），您可以在刚才的目录下，新建 luna_pinyin.custom.yaml ，输入
+
+```yaml
+switches:
+  - name: ascii_mode
+    reset: 1
+    states: ["中文", "西文"]
+```
+
+之后仍然是重新部署。
+
+### 科学上网
+
+#### V2ray 和 QV2ray
+
+```sh
+paru -S v2ray qv2ray
+```
+
+#### Clash for windows
+
+```sh
+paru -S clash-for-windows-bin
+```
+
+## 美化
+
+### Gnome 桌面美化
+
+> 桌面美化和后面的美化部分具有一定程度的主观性，下面的内容仅供参考。
+{: .prompt-warning}
+
+在浏览器安装 GNOME Shell 集成插件（Chrome, Firefox 和 Edge 均支持）；在本地安装 `gnome-browser-connector` 之后，您便可以在浏览器的 [GNOME Shell Extenstions 网页](https://extensions.gnome.org/) 安装 GNOME 插件。笔者使用的插件有：
+
+- AppIndicator and KStatusNotifierItem Support：对传统托盘图标的支持；
+- Dash to Dock：它将默认 Dash 从 overview 中移出，并在 Dock 中对其进行转换，以便更轻松地启动应用程序；
+- Proxy Switcher：在快捷菜单中选择代理模式；
+- Transparent Top Bar (Adjustable transparency)：在顶部栏自由浮动时变为透明；
+
+### 终端美化
+
+安装并启用 zsh ：
+
+```sh
+paru -S zsh
+chsh -s /bin/zsh
+```
+
+在重启后，终端就变为了 zsh 。之后，我们安装 [Oh My Zsh](https://ohmyz.sh/) 用于管理 Zsh 配置。它捆绑了数以千计的有用功能、帮助程序、插件、以及主题。
+
+```sh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+之后，我们安装 zsh 插件，包括 [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) （在您键入时根据历史记录和完成情况建议命令）、[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)（为 shell zsh 提供语法高亮显示）：
+
+```sh
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+安装完毕后，我们在 ~/.zshrc 内启用包括上述两个插件在内的一些有用的插件。我们找到 `plugins` 所在行，将其内容修改为：
+
+```
+plugins = (
+    git
+    sudo
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+)
+```
+
+其中，sudo 插件可以在双击 `esc` 后自动在命令前面添加或删除 sudo 字段，非常实用。完成后我们在终端中刷新配置即可启用：
+
+```sh
+source ~/.zshrc
+```
+
+此外，我们可以安装 [powerlevel10k](https://github.com/romkatv/powerlevel10k) 主题对终端进行美化。首先，您需要将终端字体改为某种 Nerd Font 以便显示图标，之后我们像安装之前两个插件一样安装主题
+
+```sh
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+之后在 ~/.zshrc 中找到 `ZSH_THEME` 字样，修改为
+
+```
+ZSH_THEME="powerlevel10k/powerlevel10k"
+```
+
+之后运行
+
+```sh
+source ~/.zshrc
+```
+
+这时会进入 powerlevel10k 的配置界面，根据操作一步步执行即可。
+
+### GRUB 美化
+
+在 [gnome-look](https://www.gnome-look.org) 下寻找一款您喜欢的 GRUB 主题（此处以 Vimix 为例），下载并解压，进入到目录中。Vimix 中存在一个安装脚本 install.sh，您可以直接运行该脚本进行安装。如果没有，则需要手动进行安装，首先将主题文件夹放置到系统的 grub 主题文件夹中
+
+```sh
+sudo cp -rf ~/Downloads/Vimix-4k /usr/share/grub/themes/Vimix
+```
+
+之后修改 /etc/default/grub 文件，找到 `GRUB_THEME` 一行，去掉前面的注释，修改为
+
+```
+GRUB_THEME="/usr/share/grub/themes/Vimix/theme.txt"
+```
+
+在执行安装脚本或手动安装后，需要更新配置，输入
+
+```sh
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+> 如果不想在 GRUB 页面中显示中文，您需要将系统语言修改回英文并重新启动。
+{: .prompt-tip}
+
+
+如果您觉得 GRUB 页面中的字体不够美观，您可以进行修改。首先，您需要制作 GRUB 渲染需要的 pf2 字体，以DejaVuSansMNerdFont-Regular ，字号为 32 为例：
+
+```sh
+sudo grub-mkfont 
+-v \
+--output=/usr/share/grub/themes/Vimix/dejavu-32.pf2 \
+--size=32 \
+/usr/share/fonts/TTF/DejaVuSansMNerdFont-Regular.ttf
+```
+
+命令会输出下面的内容
+
+```
+Font name: DejaVuSansM Nerd Font Regular 32
+Max width: 39
+Max height: 38
+Font ascent: 33
+Font descent: 12
+Number of glyph: 13536
+```
+
+之后打开 /usr/share/grub/themes/Vimix/theme.txt 文件，修改对应的 item_font 内容为前面的 Font name 。之后更新 GRUB 配置即可。
+
+### 启动过程界面美化
+
+您可以使用 plymouth 来对启动界面进行美化。首先，您需要修改 `/etc/default/grub` 配置文件，找到 `GRUB_CMDLINE_LINUX_DEFAULT` 一行，修改为
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+```
+
+之后更新 GRUB 配置。接下来我们安装 plymouth 和笔者喜欢的主题（可以换成您喜欢的主题）
+
+```sh
+paru -S plymouth plymouth-theme-arch-charge-big
+```
+
+安装完之后，我们首先修改 mkinitcpio 的 HOOKS，mkinitcpio 是 Arch Linux 用于生成 Linux 系统 初始内存文件系统（Initial RAM Filesystem，initramfs）的工具，帮助系统在启动时加载必要的模块和驱动程序。我们打开 `/etc/mkinitcpio.conf` 文件，将其中的 HOOKS 修改为：
+
+```
+HOOKS=(... plymouth ...)
+```
+
+注意，如果您使用 systemd HOOK，您需要将其放在 plymouth 前面。此外，如果使用 crypt HOOK，需要放在 plymouth 后面。之后我们执行
+
+```sh
+sudo mkinitcpio -P
+```
+
+为所有已安装的内核生成或更新 initramfs 镜像文件。
+
+我们修改主题为 arch-charge-big ：
+
+```sh
+plymouth-set-default-theme -R arch-charge-big
+```
+
+之后，我们重启系统，便可以看到启动界面变成来 Arch Linux 的 logo 了。
+
