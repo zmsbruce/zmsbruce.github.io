@@ -25,7 +25,7 @@ archlinux-20xx.xx.xx-x86_64.iso
 
 在下载之后，为确保文件没有损坏，需要计算文件的 SHA256 值，在 Windows 系统中，您可以打开 PowerShell 窗口，输入
 
-```sh
+```powershell
 #请将 20xx.xx.xx 替换为镜像名中的日期
 certutil -hashfile .\archlinux-20xx.xx.xx-x86_64.iso SHA256
 ```
@@ -141,7 +141,25 @@ station wlan0 connect mySSID
 quit
 ```
 
-退出交互环境。在此之后，您可以使用 `ping` 来测试网络环境。
+退出交互环境。在此之后，您可以使用 `ping` 来测试网络环境
+
+```sh
+ping https://archlinux.org
+```
+
+如果输出如下，则成功连上了互联网
+
+```
+PING www.archlinux.org (2a01:4f9:c010:6b1f::1) 56 bytes of data
+64 bytes from archlinux.org (2a01:4f9:c010:6b1f::1): icmp_seq=1 ttl=41 time=264 ms
+64 bytes from archlinux.org (2a01:4f9:c010:6b1f::1): icmp_seq=2 ttl=41 time=266 ms
+64 bytes from archlinux.org (2a01:4f9:c010:6b1f::1): icmp_seq=3 ttl=41 time=271 ms
+64 bytes from archlinux.org (2a01:4f9:c010:6b1f::1): icmp_seq=4 ttl=41 time=267 ms
+^C
+--- www.archlinux.org ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3003ms
+rtt min/avg/max/mdev = 264.381/267.294/271.263/2.498 ms
+```
 
 ### 磁盘分区与挂载
 
